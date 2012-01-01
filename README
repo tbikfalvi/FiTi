@@ -1,1 +1,9 @@
+FiTi
+
 Application for renaming multiple files.
+
+Branches:
+
+    - Development:  Main line for development branch. Any new feature or version derived from this branch.
+    - Release:      Main line for releasing the new version. Includes the neccessary dlls and other files.
+    - Version:      Main line for different versions. Derived from Development branch. Contains the source code only for specific version. 

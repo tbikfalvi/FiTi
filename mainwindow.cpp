@@ -164,7 +164,28 @@ void MainWindow::_updatePreview()
         ui->pbProcessAction->setEnabled( false );
     }
 
-    QString     qsPreview = (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():"");
+    QString     qsPreview = "";
+    QString     qsOriginal = (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():"");
+
+    for( int i=0; i<ui->listOrder->count(); i++ )
+    {
+        if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
+        {
+            qsPreview.append( qsOriginal );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
+        {
+            qsPreview.append( ui->dtDate->date().toString("yyyyMMdd") );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Serie")) == 0 )
+        {
+            qsPreview.append( ui->ledStart->text() );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Fix name")) == 0 )
+        {
+            qsPreview.append( ui->ledFixName->text() );
+        }
+    }
 
     ui->ledPreview->setText( qsPreview );
 }

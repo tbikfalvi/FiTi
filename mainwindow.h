@@ -21,12 +21,17 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    QDir currentDir;
+    QDir        currentDir;
 
-    void    _updatePreview();
-    void    _removeItemFromOrderList( const QString p_qsItem );
+    void        _updatePreview();
+    void        _removeItemFromOrderList( const QString p_qsItem );
+    QString     _getNameWithoutExtension( const QString p_qsFileName ) const;
+    QString     _getExtension( const QString p_qsFileName ) const;
 
 private slots:
+    void on_pbProcessAction_clicked();
+    void on_pbDown_clicked();
+    void on_pbUp_clicked();
     void on_listOrder_itemSelectionChanged();
     void on_pbDeselectAll_clicked();
     void on_pbSelectAll_clicked();

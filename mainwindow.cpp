@@ -1,3 +1,4 @@
+//QMessageBox::information( this, "DEBUG INFO", "" );
 
 #include <QFileDialog>
 #include <QDesktopServices>
@@ -151,6 +152,79 @@ void MainWindow::on_listOrder_itemSelectionChanged()
     ui->pbDown->setEnabled( ui->listOrder->selectedItems().size() > 0 ? true : false );
 }
 
+void MainWindow::on_pbUp_clicked()
+{
+    int     nRow = ui->listOrder->currentRow();
+
+    if( nRow == 0 ) return;
+
+    ui->listOrder->insertItem( nRow-1, ui->listOrder->takeItem(nRow) );
+    ui->listOrder->setCurrentRow( nRow-1 );
+
+    _updatePreview();
+}
+
+void MainWindow::on_pbDown_clicked()
+{
+    int     nRow = ui->listOrder->currentRow();
+
+    if( nRow == ui->listOrder->count()-1 ) return;
+
+    ui->listOrder->insertItem( nRow+1, ui->listOrder->takeItem(nRow) );
+    ui->listOrder->setCurrentRow( nRow+1 );
+
+    _updatePreview();
+}
+
+void MainWindow::on_pbProcessAction_clicked()
+{
+    if( QMessageBox::question( this, tr("Question"),
+                               tr("Are you sure you want to rename the selected files\n"
+                                  "according to the selected settings?"),
+                               QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes )
+    {
+        for( int nFile=0; nFile<ui->listFiles->selectedItems().size(); nFile++ )
+        {
+            QString     fileFrom = QString( "%1\\%2" ).arg(ui->ledDirectoryTarget->text()).arg(ui->listFiles->selectedItems()[nFile]->text());
+            QString     fileTo = ui->ledDirectoryTarget->text();
+            QString     fileExt = _getExtension( ui->listFiles->selectedItems()[nFile]->text() );
+
+            fileFrom.replace( QChar('/'), QString("\\") );
+            fileTo.replace( QChar('/'), QString("\\") );
+
+            fileTo.append( "\\" );
+
+            for( int nFilter=0; nFilter<ui->listOrder->count(); nFilter++ )
+            {
+                if( ui->listOrder->item(nFilter)->text().compare(tr("Original name")) == 0 )
+                {
+                    fileTo.append( ui->listFiles->selectedItems()[nFile]->text() );
+                }
+                if( ui->listOrder->item(nFilter)->text().compare(tr("Date")) == 0 )
+                {
+                    fileTo.append( ui->dtDate->date().toString("yyyyMMdd") );
+                }
+                if( ui->listOrder->item(nFilter)->text().compare(tr("Serie")) == 0 )
+                {
+                    fileTo.append( QString::number( ui->ledStart->text().toInt() + nFile * ui->ledStep->text().toInt() ) );
+                }
+                if( ui->listOrder->item(nFilter)->text().compare(tr("Fix name")) == 0 )
+                {
+                    fileTo.append( ui->ledFixName->text() );
+                }
+            }
+            fileTo.append( fileExt );
+
+            if( !QFile::rename( fileFrom, fileTo ) )
+            {
+                QMessageBox::warning( this, tr("Warning"),
+                                      tr("Unable to rename the selected file:\n\n%1\n\nto this name:\n\n%2").arg(fileFrom).arg(fileTo) );
+            }
+        }
+        on_ledDirectoryTarget_textChanged("");
+    }
+}
+
 void MainWindow::_updatePreview()
 {
     // Set process button state
@@ -171,7 +245,7 @@ void MainWindow::_updatePreview()
     {
         if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
         {
-            qsPreview.append( qsOriginal );
+            qsPreview.append( _getNameWithoutExtension( qsOriginal ) );
         }
         if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
         {
@@ -186,6 +260,7 @@ void MainWindow::_updatePreview()
             qsPreview.append( ui->ledFixName->text() );
         }
     }
+    qsPreview.append( _getExtension(qsOriginal) );
 
     ui->ledPreview->setText( qsPreview );
 }
@@ -201,3 +276,30 @@ void MainWindow::_removeItemFromOrderList( const QString p_qsItem )
         }
     }
 }
+
+QString MainWindow::_getNameWithoutExtension( const QString p_qsFileName ) const
+{
+    QString     qsFileName = "";
+
+    if( p_qsFileName.indexOf(QChar('.')) > -1 )
+    {
+        qsFileName = p_qsFileName.left( p_qsFileName.indexOf(QChar('.')) );
+    }
+    else
+    {
+        qsFileName = p_qsFileName;
+    }
+    return qsFileName;
+}
+
+QString MainWindow::_getExtension( const QString p_qsFileName ) const
+{
+    QString     qsExtension = "";
+
+    if( p_qsFileName.indexOf(QChar('.')) > -1 )
+    {
+        qsExtension = p_qsFileName.right( p_qsFileName.size()-p_qsFileName.indexOf(QChar('.')) );
+    }
+    return qsExtension;
+}
+

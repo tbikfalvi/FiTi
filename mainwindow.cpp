@@ -53,6 +53,12 @@ void MainWindow::on_listFiles_itemSelectionChanged()
     _updatePreview();
 }
 
+void MainWindow::on_listFiles_currentItemChanged(QListWidgetItem* current, QListWidgetItem*)
+{
+    ui->pbFileUp->setEnabled( current != NULL ? true : false );
+    ui->pbFileDown->setEnabled( current != NULL ? true : false );
+}
+
 void MainWindow::on_pbSelectAll_clicked()
 {
     ui->listFiles->selectAll();
@@ -61,6 +67,26 @@ void MainWindow::on_pbSelectAll_clicked()
 void MainWindow::on_pbDeselectAll_clicked()
 {
     ui->listFiles->clearSelection();
+}
+
+void MainWindow::on_pbFileUp_clicked()
+{
+    int     nRow = ui->listFiles->currentRow();
+
+    if( nRow == 0 ) return;
+
+    ui->listFiles->insertItem( nRow-1, ui->listFiles->takeItem(nRow) );
+    ui->listFiles->setCurrentRow( nRow-1 );
+}
+
+void MainWindow::on_pbFileDown_clicked()
+{
+    int     nRow = ui->listFiles->currentRow();
+
+    if( nRow == ui->listFiles->count()-1 ) return;
+
+    ui->listFiles->insertItem( nRow+1, ui->listFiles->takeItem(nRow) );
+    ui->listFiles->setCurrentRow( nRow+1 );
 }
 
 void MainWindow::on_chkOrigName_stateChanged(int )
@@ -302,4 +328,5 @@ QString MainWindow::_getExtension( const QString p_qsFileName ) const
     }
     return qsExtension;
 }
+
 

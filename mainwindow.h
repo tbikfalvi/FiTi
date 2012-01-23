@@ -3,6 +3,7 @@
 
 #include <QDir>
 #include <QDate>
+#include <QListWidgetItem>
 
 #include <QMainWindow>
 
@@ -29,6 +30,9 @@ private:
     QString     _getExtension( const QString p_qsFileName ) const;
 
 private slots:
+    void on_listFiles_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+    void on_pbFileDown_clicked();
+    void on_pbFileUp_clicked();
     void on_pbProcessAction_clicked();
     void on_pbDown_clicked();
     void on_pbUp_clicked();

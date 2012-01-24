@@ -30,6 +30,7 @@ private:
     QString     _getExtension( const QString p_qsFileName ) const;
 
 private slots:
+    void on_pbPreviewAction_clicked();
     void on_listFiles_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
     void on_pbFileDown_clicked();
     void on_pbFileUp_clicked();

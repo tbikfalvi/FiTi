@@ -202,6 +202,12 @@ void MainWindow::on_pbDown_clicked()
     _updatePreview();
 }
 
+
+void MainWindow::on_pbPreviewAction_clicked()
+{
+
+}
+
 void MainWindow::on_pbProcessAction_clicked()
 {
     if( QMessageBox::question( this, tr("Question"),

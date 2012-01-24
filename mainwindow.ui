@@ -379,6 +379,13 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
+            <widget class="QPushButton" name="pbPreviewAction">
+             <property name="text">
+              <string>Preview action</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="pbProcessAction">
              <property name="enabled">
               <bool>false</bool>

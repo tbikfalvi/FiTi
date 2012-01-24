@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
+#include <QStringList>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -205,7 +206,12 @@ void MainWindow::on_pbDown_clicked()
 
 void MainWindow::on_pbPreviewAction_clicked()
 {
+    QStringList qslFiles;
 
+    for( int nFile=0; nFile<ui->listFiles->count(); nFile++ )
+    {
+
+    }
 }
 
 void MainWindow::on_pbProcessAction_clicked()
@@ -219,33 +225,13 @@ void MainWindow::on_pbProcessAction_clicked()
         {
             QString     fileFrom = QString( "%1\\%2" ).arg(ui->ledDirectoryTarget->text()).arg(ui->listFiles->selectedItems()[nFile]->text());
             QString     fileTo = ui->ledDirectoryTarget->text();
-            QString     fileExt = _getExtension( ui->listFiles->selectedItems()[nFile]->text() );
+            QString     fileTarget = _createDestinationFile( ui->listFiles->selectedItems()[nFile]->text() );
 
             fileFrom.replace( QChar('/'), QString("\\") );
             fileTo.replace( QChar('/'), QString("\\") );
 
             fileTo.append( "\\" );
-
-            for( int nFilter=0; nFilter<ui->listOrder->count(); nFilter++ )
-            {
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Original name")) == 0 )
-                {
-                    fileTo.append( ui->listFiles->selectedItems()[nFile]->text() );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Date")) == 0 )
-                {
-                    fileTo.append( ui->dtDate->date().toString("yyyyMMdd") );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Serie")) == 0 )
-                {
-                    fileTo.append( QString::number( ui->ledStart->text().toInt() + nFile * ui->ledStep->text().toInt() ) );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Fix name")) == 0 )
-                {
-                    fileTo.append( ui->ledFixName->text() );
-                }
-            }
-            fileTo.append( fileExt );
+            fileTo.append( fileTarget );
 
             if( !QFile::rename( fileFrom, fileTo ) )
             {
@@ -270,29 +256,7 @@ void MainWindow::_updatePreview()
         ui->pbProcessAction->setEnabled( false );
     }
 
-    QString     qsPreview = "";
-    QString     qsOriginal = (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():"");
-
-    for( int i=0; i<ui->listOrder->count(); i++ )
-    {
-        if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
-        {
-            qsPreview.append( _getNameWithoutExtension( qsOriginal ) );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
-        {
-            qsPreview.append( ui->dtDate->date().toString("yyyyMMdd") );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Serie")) == 0 )
-        {
-            qsPreview.append( ui->ledStart->text() );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Fix name")) == 0 )
-        {
-            qsPreview.append( ui->ledFixName->text() );
-        }
-    }
-    qsPreview.append( _getExtension(qsOriginal) );
+    QString     qsPreview = _createDestinationFile( (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():"") );
 
     ui->ledPreview->setText( qsPreview );
 }
@@ -335,4 +299,31 @@ QString MainWindow::_getExtension( const QString p_qsFileName ) const
     return qsExtension;
 }
 
+QString MainWindow::_createDestinationFile( const QString p_qsFileName ) const
+{
+    QString     qsDestination = "";
+
+    for( int i=0; i<ui->listOrder->count(); i++ )
+    {
+        if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
+        {
+            qsDestination.append( _getNameWithoutExtension( p_qsFileName ) );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
+        {
+            qsDestination.append( ui->dtDate->date().toString("yyyyMMdd") );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Serie")) == 0 )
+        {
+            qsDestination.append( ui->ledStart->text() );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Fix name")) == 0 )
+        {
+            qsDestination.append( ui->ledFixName->text() );
+        }
+    }
+    qsDestination.append( _getExtension(p_qsFileName) );
+
+    return qsDestination;
+}
 

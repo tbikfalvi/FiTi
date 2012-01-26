@@ -28,8 +28,10 @@ private:
     void        _removeItemFromOrderList( const QString p_qsItem );
     QString     _getNameWithoutExtension( const QString p_qsFileName ) const;
     QString     _getExtension( const QString p_qsFileName ) const;
+    QString     _createDestinationFile( const QString p_qsFileName, const int nCount ) const;
 
 private slots:
+    void on_pbPreviewAction_clicked();
     void on_listFiles_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
     void on_pbFileDown_clicked();
     void on_pbFileUp_clicked();

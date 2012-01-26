@@ -4,9 +4,11 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
+#include <QStringList>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "dlgpreview.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -202,6 +204,29 @@ void MainWindow::on_pbDown_clicked()
     _updatePreview();
 }
 
+
+void MainWindow::on_pbPreviewAction_clicked()
+{
+    QStringList qslFiles;
+
+    for( int nFile=0,nCount=0; nFile<ui->listFiles->count(); nFile++ )
+    {
+        qslFiles << ui->listFiles->item( nFile )->text();
+        if( ui->listFiles->item(nFile)->isSelected() )
+        {
+            qslFiles << _createDestinationFile( ui->listFiles->item( nFile )->text(), nCount );
+            nCount++;
+        }
+        else
+        {
+            qslFiles << ui->listFiles->item( nFile )->text();
+        }
+    }
+
+    dlgPreview  obPreview( this, &qslFiles );
+    obPreview.exec();
+}
+
 void MainWindow::on_pbProcessAction_clicked()
 {
     if( QMessageBox::question( this, tr("Question"),
@@ -213,33 +238,13 @@ void MainWindow::on_pbProcessAction_clicked()
         {
             QString     fileFrom = QString( "%1\\%2" ).arg(ui->ledDirectoryTarget->text()).arg(ui->listFiles->selectedItems()[nFile]->text());
             QString     fileTo = ui->ledDirectoryTarget->text();
-            QString     fileExt = _getExtension( ui->listFiles->selectedItems()[nFile]->text() );
+            QString     fileTarget = _createDestinationFile( ui->listFiles->selectedItems()[nFile]->text(), nFile );
 
             fileFrom.replace( QChar('/'), QString("\\") );
             fileTo.replace( QChar('/'), QString("\\") );
 
             fileTo.append( "\\" );
-
-            for( int nFilter=0; nFilter<ui->listOrder->count(); nFilter++ )
-            {
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Original name")) == 0 )
-                {
-                    fileTo.append( ui->listFiles->selectedItems()[nFile]->text() );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Date")) == 0 )
-                {
-                    fileTo.append( ui->dtDate->date().toString("yyyyMMdd") );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Serie")) == 0 )
-                {
-                    fileTo.append( QString::number( ui->ledStart->text().toInt() + nFile * ui->ledStep->text().toInt() ) );
-                }
-                if( ui->listOrder->item(nFilter)->text().compare(tr("Fix name")) == 0 )
-                {
-                    fileTo.append( ui->ledFixName->text() );
-                }
-            }
-            fileTo.append( fileExt );
+            fileTo.append( fileTarget );
 
             if( !QFile::rename( fileFrom, fileTo ) )
             {
@@ -264,29 +269,7 @@ void MainWindow::_updatePreview()
         ui->pbProcessAction->setEnabled( false );
     }
 
-    QString     qsPreview = "";
-    QString     qsOriginal = (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():"");
-
-    for( int i=0; i<ui->listOrder->count(); i++ )
-    {
-        if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
-        {
-            qsPreview.append( _getNameWithoutExtension( qsOriginal ) );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
-        {
-            qsPreview.append( ui->dtDate->date().toString("yyyyMMdd") );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Serie")) == 0 )
-        {
-            qsPreview.append( ui->ledStart->text() );
-        }
-        if( ui->listOrder->item(i)->text().compare(tr("Fix name")) == 0 )
-        {
-            qsPreview.append( ui->ledFixName->text() );
-        }
-    }
-    qsPreview.append( _getExtension(qsOriginal) );
+    QString     qsPreview = _createDestinationFile( (ui->listFiles->selectedItems().count()>0?ui->listFiles->selectedItems()[0]->text():""), 0 );
 
     ui->ledPreview->setText( qsPreview );
 }
@@ -329,4 +312,31 @@ QString MainWindow::_getExtension( const QString p_qsFileName ) const
     return qsExtension;
 }
 
+QString MainWindow::_createDestinationFile( const QString p_qsFileName, const int nCount ) const
+{
+    QString     qsDestination = "";
+
+    for( int i=0; i<ui->listOrder->count(); i++ )
+    {
+        if( ui->listOrder->item(i)->text().compare(tr("Original name")) == 0 )
+        {
+            qsDestination.append( _getNameWithoutExtension( p_qsFileName ) );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Date")) == 0 )
+        {
+            qsDestination.append( ui->dtDate->date().toString("yyyyMMdd") );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Serie")) == 0 )
+        {
+            qsDestination.append( QString::number( ui->ledStart->text().toInt() + nCount * ui->ledStep->text().toInt() ) );
+        }
+        if( ui->listOrder->item(i)->text().compare(tr("Fix name")) == 0 )
+        {
+            qsDestination.append( ui->ledFixName->text() );
+        }
+    }
+    qsDestination.append( _getExtension(p_qsFileName) );
+
+    return qsDestination;
+}
 
